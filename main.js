@@ -59,7 +59,7 @@ const errorLogin = function() {
   }
 }
 
-// Form submit event listener
+// form submit event listener
 loginScreen.querySelector('.ui > form').addEventListener('submit', function(e) {
   e.preventDefault();
 
@@ -124,3 +124,9 @@ const updateCategoryUi = function() {
     });
   });
 }
+
+casinoScreen.querySelector('.search > input').addEventListener('keyup', function(e) {
+  // get value
+  let value = casinoScreen.querySelector('.search > input').value;
+  updateGameUi(`name_like=${value}`);
+});
