@@ -126,14 +126,32 @@ const updateCategoryUi = function() {
   });
 }
 
-const launchGame = function(code) {
-  casinoScreen.style.display = 'none';
-  ingameScreen.style.display = 'block';
-  comeon.game.launch(code);
-}
-
 casinoScreen.querySelector('.search > input').addEventListener('keyup', function(e) {
   // get value
   let value = casinoScreen.querySelector('.search > input').value;
   updateGameUi(`name_like=${value}`);
 });
+
+// - - -
+// Game related screen
+const ingameUiTemplate = ingameScreen.cloneNode(true);
+
+const launchGame = function(code) {
+  casinoScreen.style.display = 'none';
+  ingameScreen.style.display = 'block';
+  comeon.game.launch(code);
+
+  ingameScreen.querySelector('.button.secondary').addEventListener('click', function(e) {
+    leaveGame();
+  });
+}
+
+const leaveGame = function() {
+  casinoScreen.style.display = 'block';
+  ingameScreen.style.display = 'none';
+
+  // reset login screen
+  ingameScreen.innerHTML = ingameUiTemplate.innerHTML;  
+}
+
+
