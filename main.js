@@ -5,9 +5,9 @@ const ingameScreen = document.querySelector('.ingame');
 
 // - - - 
 // Login screen related
-const loginUiTemplate = loginScreen.cloneNode(true);
+// const loginUiTemplate = loginScreen.cloneNode(true);
 
-const handleLogin = function(username, secret) {
+const login = function(username, secret) {
   // make a request
   fetch('http://localhost:3001/login', {
     method: 'post',
@@ -26,12 +26,33 @@ const handleLogin = function(username, secret) {
     console.log(json);
     if(json.status === 'success') {
       // success, login the player
+      // set cookie
       successLogin(json.player);
     } else {
       // return the necessary error message
       errorLogin();
     }
   });
+}
+
+const logout = function(username) {
+  fetch('http://localhost:3001/logout', {
+    method: 'post',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      username: username
+    })
+  })
+  .then(response => response.json())
+  .then(json => {
+    // cookie stuff here too
+    loginScreen.style.display = 'block';
+    casinoScreen.style.display = 'none';
+    resetSearchForm();
+  })
 }
 
 const successLogin = function(player) {
@@ -45,17 +66,37 @@ const successLogin = function(player) {
   updateCategoryUi();
 
   // reset login screen
-  loginScreen.innerHTML = loginUiTemplate.innerHTML;
+  resetLoginForm();
+
+  // bind logout
+  casinoScreen.querySelector('.button.logout').addEventListener('click', function(e) {
+    logout(`${player.username}`);
+  });
 }
 
 const errorLogin = function() {
+  // throw an error on the form if login fails
   if(!document.querySelector('.invalid-credentials')) {
     let errorUi = document.createElement('div');
-        errorUi.innerHTML = '<h3>Incorect credentials!</h3>';
-        errorUi.className = 'field invalid-credentials';
+    errorUi.innerHTML = '<h3>Incorect credentials!</h3>';
+    errorUi.className = 'field invalid-credentials';
 
     let hook = loginScreen.querySelector('.ui > form > .fields > .field');
     hook.parentNode.insertBefore(errorUi, hook);
+  }
+}
+
+const resetLoginForm = function() {
+  // reset inputs
+  let inputs = loginScreen.querySelectorAll('input');
+  inputs.forEach(function(input) {
+    if(input.value !== "Login")
+      input.value = '';
+  });
+
+  // remove error message if needed
+  if(document.querySelector('.invalid-credentials')) {
+    document.querySelector('.invalid-credentials').remove();
   }
 }
 
@@ -69,7 +110,7 @@ loginScreen.querySelector('.ui > form').addEventListener('submit', function(e) {
     payload[input.name] = input.value;
   });
 
-  handleLogin(payload.username, payload.password);
+  login(payload.username, payload.password);
 });
 
 
@@ -126,6 +167,10 @@ const updateCategoryUi = function() {
   });
 }
 
+const resetSearchForm = function() {
+  casinoScreen.querySelector('.search > input').value = '';
+}
+
 casinoScreen.querySelector('.search > input').addEventListener('keyup', function(e) {
   // get value
   let value = casinoScreen.querySelector('.search > input').value;
@@ -137,6 +182,7 @@ casinoScreen.querySelector('.search > input').addEventListener('keyup', function
 const ingameUiTemplate = ingameScreen.cloneNode(true);
 
 const launchGame = function(code) {
+  // check cookie
   casinoScreen.style.display = 'none';
   ingameScreen.style.display = 'block';
   comeon.game.launch(code);
