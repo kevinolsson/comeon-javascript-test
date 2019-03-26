@@ -2,20 +2,8 @@ const loginScreen = document.querySelector('.login');
 const casinoScreen = document.querySelector('.casino');
 const ingameScreen = document.querySelector('.inage');
 
-
-loginScreen.querySelector('.ui > form').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  let payload = {};
-  let inputs = loginScreen.querySelectorAll('input');
-  inputs.forEach(function(input) {
-    payload[input.name] = input.value;
-  })
-
-  handleLogin(payload.username, payload.password);
-
-});
-
+// - - - 
+// Login screen related
 
 const handleLogin = function(username, secret) {
   // make a request
@@ -49,12 +37,8 @@ const successLogin = function(player) {
   loginScreen.style.display = 'none';
   casinoScreen.style.display = 'block';
 
-  // update user elements
-  let playerUi = document.querySelector('.player');
-  playerUi.querySelector('.image').src = player.avatar
-  playerUi.querySelector('.content > .header').innerHTML = player.name;
-  playerUi.querySelector('.content > .description').innerHTML = player.event;
-
+  updatePlayerUi(player)
+  updateGameUi();
 }
 
 const errorLogin = function() {
@@ -66,4 +50,49 @@ const errorLogin = function() {
     let hook = loginScreen.querySelector('.ui > form > .fields > .field');
     hook.parentNode.insertBefore(errorUi, hook);
   }
+}
+
+// Form submit event listener
+loginScreen.querySelector('.ui > form').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  let payload = {};
+  let inputs = loginScreen.querySelectorAll('input');
+  inputs.forEach(function(input) {
+    payload[input.name] = input.value;
+  });
+
+  handleLogin(payload.username, payload.password);
+});
+
+
+// - - -
+// Casino screen related
+
+const updatePlayerUi = function(player) {
+  // update user elements
+  let playerUi = document.querySelector('.player');
+  playerUi.querySelector('.image').src = player.avatar
+  playerUi.querySelector('.content > .header').innerHTML = player.name;
+  playerUi.querySelector('.content > .description').innerHTML = player.event;
+}
+
+const updateGameUi = function() {
+  fetch('http://localhost:3001/games', { method: 'get' })
+  .then(response => response.json())
+  .then(json => {
+    console.log(json);
+    let gameUi = casinoScreen.querySelector('.ui.game.items');
+    let gameItem = gameUi.querySelector('.game.item');
+    gameUi.innerHTML = null;
+
+    json.forEach(function(game) {
+      // clone original, edit its content, then append to gameUi
+      let clone = gameItem.cloneNode(true);
+      clone.querySelector('.image > img').src = game.icon;
+      clone.querySelector('.content > .header').innerHTML = game.name;
+      clone.querySelector('.content > .description').innerHTML = game.description;
+      gameUi.appendChild(clone);
+    })
+  });
 }
