@@ -1,9 +1,11 @@
+// - - - Big three
 const loginScreen = document.querySelector('.login');
 const casinoScreen = document.querySelector('.casino');
 const ingameScreen = document.querySelector('.inage');
 
 // - - - 
 // Login screen related
+const loginUiTemplate = loginScreen.cloneNode(true);
 
 const handleLogin = function(username, secret) {
   // make a request
@@ -37,8 +39,13 @@ const successLogin = function(player) {
   loginScreen.style.display = 'none';
   casinoScreen.style.display = 'block';
 
+  // update casino ui
   updatePlayerUi(player)
   updateGameUi();
+  updateCategoryUi();
+
+  // reset login screen
+  loginScreen.innerHTML = loginUiTemplate.innerHTML;
 }
 
 const errorLogin = function() {
@@ -68,10 +75,13 @@ loginScreen.querySelector('.ui > form').addEventListener('submit', function(e) {
 
 // - - -
 // Casino screen related
+const playerUiTemplate = casinoScreen.querySelector('.player').cloneNode(true);
+const gameUiTemplate = casinoScreen.querySelector('.ui.game.items').cloneNode(true);
+const categoryUiTemplate = casinoScreen.querySelector('.ui.category.items').cloneNode(true);
 
 const updatePlayerUi = function(player) {
   // update user elements
-  let playerUi = document.querySelector('.player');
+  let playerUi = casinoScreen.querySelector('.player');
   playerUi.querySelector('.image').src = player.avatar
   playerUi.querySelector('.content > .header').innerHTML = player.name;
   playerUi.querySelector('.content > .description').innerHTML = player.event;
@@ -83,7 +93,7 @@ const updateGameUi = function() {
   .then(json => {
     console.log(json);
     let gameUi = casinoScreen.querySelector('.ui.game.items');
-    let gameItem = gameUi.querySelector('.game.item');
+    let gameItem = gameUi.querySelector('.game.item'); // original to be cloned
     gameUi.innerHTML = null;
 
     json.forEach(function(game) {
@@ -94,5 +104,13 @@ const updateGameUi = function() {
       clone.querySelector('.content > .description').innerHTML = game.description;
       gameUi.appendChild(clone);
     })
+  });
+}
+
+const updateCategoryUi = function() {
+  fetch('http://localhost:3001/categories', { method: 'get' })
+  .then(response => response.json())
+  .then(json => {
+    console.log(json);
   });
 }
