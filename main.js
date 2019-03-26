@@ -1,7 +1,7 @@
 // - - - Big three
 const loginScreen = document.querySelector('.login');
 const casinoScreen = document.querySelector('.casino');
-const ingameScreen = document.querySelector('.inage');
+const ingameScreen = document.querySelector('.ingame');
 
 // - - - 
 // Login screen related
@@ -93,7 +93,7 @@ const updateGameUi = function(params = null) {
   .then(json => {
     console.log(json);
     let gameUi = casinoScreen.querySelector('.ui.game.items');
-    let gameItem = gameUi.querySelector('.game.item'); // original to be cloned
+    let gameItem = gameUiTemplate.querySelector('.game.item'); // original to be cloned
     gameUi.innerHTML = null;
 
     json.forEach(function(game) {
@@ -102,6 +102,7 @@ const updateGameUi = function(params = null) {
       clone.querySelector('.image > img').src = game.icon;
       clone.querySelector('.content > .header').innerHTML = game.name;
       clone.querySelector('.content > .description').innerHTML = game.description;
+      clone.querySelector('.content > .extra > .play').setAttribute('onClick', `launchGame('${game.code}')`);
       gameUi.appendChild(clone);
     })
   });
@@ -123,6 +124,12 @@ const updateCategoryUi = function() {
       categoryUi.appendChild(clone);
     });
   });
+}
+
+const launchGame = function(code) {
+  casinoScreen.style.display = 'none';
+  ingameScreen.style.display = 'block';
+  comeon.game.launch(code);
 }
 
 casinoScreen.querySelector('.search > input').addEventListener('keyup', function(e) {
