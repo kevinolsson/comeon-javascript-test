@@ -87,8 +87,8 @@ const updatePlayerUi = function(player) {
   playerUi.querySelector('.content > .description').innerHTML = player.event;
 }
 
-const updateGameUi = function() {
-  fetch('http://localhost:3001/games', { method: 'get' })
+const updateGameUi = function(params = null) {
+  fetch('http://localhost:3001/games?' + params, { method: 'get' })
   .then(response => response.json())
   .then(json => {
     console.log(json);
@@ -112,5 +112,15 @@ const updateCategoryUi = function() {
   .then(response => response.json())
   .then(json => {
     console.log(json);
+    let categoryUi = casinoScreen.querySelector('.ui.category.items');
+    let categoryItem = categoryUi.querySelector('.category.item');
+    categoryUi.innerHTML = null;
+
+    json.forEach(function(category) {
+      let clone = categoryItem.cloneNode(true);
+      clone.querySelector('.content > .header').innerHTML = category.name;
+      clone.querySelector('.content > .header').setAttribute('onClick', `updateGameUi('categoryIds_like=${category.id}')`);
+      categoryUi.appendChild(clone);
+    });
   });
 }
