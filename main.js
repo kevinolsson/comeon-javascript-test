@@ -3,6 +3,9 @@ const loginScreen = document.querySelector('.login');
 const casinoScreen = document.querySelector('.casino');
 const ingameScreen = document.querySelector('.ingame');
 
+// Login status
+let loginStatus = false;
+
 // - - - 
 // Login screen related
 // const loginUiTemplate = loginScreen.cloneNode(true);
@@ -25,9 +28,9 @@ const login = function(username, secret) {
   .then(json => {
     console.log(json);
     if(json.status === 'success') {
-      // success, login the player
-      // set cookie
-      successLogin(json.player);
+      // success!
+      loginStatus = true; 
+      successLogin(json.player); // log the player in
     } else {
       // return the necessary error message
       errorLogin();
@@ -48,7 +51,7 @@ const logout = function(username) {
   })
   .then(response => response.json())
   .then(json => {
-    // cookie stuff here too
+    loginStatus = false;
     loginScreen.style.display = 'block';
     casinoScreen.style.display = 'none';
     resetSearchForm();
@@ -182,14 +185,15 @@ casinoScreen.querySelector('.search > input').addEventListener('keyup', function
 const ingameUiTemplate = ingameScreen.cloneNode(true);
 
 const launchGame = function(code) {
-  // check cookie
-  casinoScreen.style.display = 'none';
-  ingameScreen.style.display = 'block';
-  comeon.game.launch(code);
+  if(loginStatus) {
+    casinoScreen.style.display = 'none';
+    ingameScreen.style.display = 'block';
+    comeon.game.launch(code);
 
-  ingameScreen.querySelector('.button.secondary').addEventListener('click', function(e) {
-    leaveGame();
-  });
+    ingameScreen.querySelector('.button.secondary').addEventListener('click', function(e) {
+      leaveGame();
+    });
+  }
 }
 
 const leaveGame = function() {
